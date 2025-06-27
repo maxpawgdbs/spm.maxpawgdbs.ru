@@ -50,7 +50,7 @@ def main_page():
     req = requests.post("https://spworlds.ru/api/public/payments",
                         json={"items": [{"name": "skam", "count": 1, "price": 1}],
                               "redirectUrl": f"https://{URL}/get",
-                              "webhookUrl": "https://webhook.site/3a57aba7-5087-4f0b-96b5-daaca1843476",
+                              "webhookUrl": f"https://{URL}/stats",
                               "data": "Artyom privet"},
                         headers={"Authorization": AuthHeader})
     PAY_URL = req.json()["url"]
