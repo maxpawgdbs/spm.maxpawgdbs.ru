@@ -59,14 +59,14 @@ def main_page():
 
 @app.post("/stats")
 def stats():
-    # auth = flask.request.headers.get("X-Body-Hash", None)
-    # if auth is None:
-    #     return flask.abort(403)
-    #
-    # mac = hmac.new(TOKEN.encode(), flask.request.data, hashlib.sha256)
-    # calculated_hash = base64.b64encode(mac.digest()).decode()
-    # if calculated_hash != auth:
-    #     return flask.abort(403)
+    auth = flask.request.headers.get("X-Body-Hash", None)
+    if auth is None:
+        return flask.abort(403)
+
+    mac = hmac.new(TOKEN.encode(), flask.request.data, hashlib.sha256)
+    calculated_hash = base64.b64encode(mac.digest()).decode()
+    if calculated_hash != auth:
+        return flask.abort(403)
     payer = flask.request.json.get("payer", None)
     if payer is None:
         return "error", 400
@@ -83,6 +83,8 @@ def stats():
 
 @app.get("/get")
 def get():
+    with open("mylogs.ref", "a") as file:
+        file.write(str(flask.request.headers))
     # ref = flask.request.headers.get('Referer', None)
     # if ref is None or not ref.startswith("https://spworlds.ru/spm/pay"):
     #     return flask.abort(403)
