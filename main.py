@@ -27,45 +27,31 @@ if URL is None or PORT is None:
 AuthToken = base64.b64encode(f"{ID}:{TOKEN}".encode()).decode()
 AuthHeader = "Bearer " + AuthToken
 
-conn = sqlite3.connect('payments.db')
-cursor = conn.cursor()
-cursor.execute('''
+con = sqlite3.connect('payments.db')
+cur = con.cursor()
+cur.execute('''
     CREATE TABLE IF NOT EXISTS payments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nickname TEXT NOT NULL,
         date TEXT NOT NULL
     )
 ''')
-cursor.close()
-
+con.commit()
+cur.close()
+con.close()
 
 req = requests.post("https://spworlds.ru/api/public/payments",
-                        json={"items": [{"name": "skam", "count": 1, "price": 1}],
-                              "redirectUrl": f"{URL}:{PORT}/get",
-                              "webhookUrl": "https://webhook.site/3a57aba7-5087-4f0b-96b5-daaca1843476",
-                              # f"{URL}:{PORT}/stats",
-                              "data": "Artyom privet"},
-                        headers={"Authorization": AuthHeader})
-print(req.json())
+                    json={"items": [{"name": "skam", "count": 1, "price": 1}],
+                          "redirectUrl": f"{URL}/get",
+                          "webhookUrl": "https://webhook.site/3a57aba7-5087-4f0b-96b5-daaca1843476",
+                          "data": "Artyom privet"},
+                    headers={"Authorization": AuthHeader})
 PAY_URL = req.json()["url"]
-print(PAY_URL)
+
 
 @app.get("/")
 def main_page():
     return flask.render_template("main.html", pay_url=PAY_URL)
-
-
-# @app.get("/pay")
-# def skam():
-#     req = requests.post("https://spworlds.ru/api/public/payments",
-#                         json={"items": [{"name": "skam", "count": 1, "price": 1}],
-#                               "redirectUrl": f"{URL}:{PORT}/get",
-#                               "webhookUrl": "https://webhook.site/3a57aba7-5087-4f0b-96b5-daaca1843476",
-#                               # f"{URL}:{PORT}/stats",
-#                               "data": "Artyom privet"},
-#                         headers={"Authorization": AuthHeader})
-#     print(req.json())
-#     return flask.redirect(req.json()["url"])
 
 
 @app.post("/stats")
@@ -81,23 +67,27 @@ def stats():
 
     con = sqlite3.connect("payments.db")
     cur = con.cursor()
-    cur.execute("INSERT INTO payments(nickname, date) VALUES ?, ?", (flask.request.json(),
+    cur.execute("INSERT INTO payments(nickname, date) VALUES (?, ?)", (flask.request.json()["payer"],
                                                                      datetime.datetime.now().strftime(
                                                                          "%Y-%m-%d %H:%M:%S")))
+    con.commit()
     cur.close()
+    con.close()
     return "OK", 200
 
 
 @app.get("/get")
 def get():
-    return "hello world all ok"
-    # ref = flask.request.headers.get('Referer')
-    # if not ref.startswith("https://spworlds.ru/spm/pay"):
-    #     return flask.abort(403)
-    # con = sqlite3.connect("payments.db")
-    # cur = con.cursor()
-    # query = cur.execute("SELECT * FROM PAYMENTS ORDER BY date")
-    # #дописать
+    ref = flask.request.headers.get('Referer')
+    if not ref.startswith("https://spworlds.ru/spm/pay"):
+        return flask.abort(403)
+    con = sqlite3.connect("payments.db")
+    cur = con.cursor()
+    query = cur.execute("SELECT nickname, date FROM PAYMENTS ORDER BY date").fetchall()
+    cur.close()
+    con.close()
+    return flask.render_template("gois.html", pays=query)
+
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 80)
+    app.run("0.0.0.0", 8001)

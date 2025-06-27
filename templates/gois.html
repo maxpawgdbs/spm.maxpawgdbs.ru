@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список гоев</title>
+</head>
+<body style="background-color: #3f5cef; font-family: Verdana;">
+<h1 style="text-align: center; color: white; margin-top: 50px;">ВОТ КТО ОТПРАВИЛ 10 АР ДО ТЕБЯ</h1>
+<div>
+    {% for item in pays %}
+    <div>
+        <h1>item[0]</h1>
+        <h2>item[1]</h2>
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>
