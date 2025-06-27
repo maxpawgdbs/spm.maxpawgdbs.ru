@@ -24,10 +24,10 @@ if URL is None or PORT is None:
     print("нет адреса")
     exit(0)
 
-CERTS = os.getenv("CERTS", None)
-if CERTS is None:
-    print("нет сертов")
-    exit(0)
+# CERTS = os.getenv("CERTS", None)
+# if CERTS is None:
+#     print("нет сертов")
+#     exit(0)
 
 AuthToken = base64.b64encode(f"{ID}:{TOKEN}".encode()).decode()
 AuthHeader = "Bearer " + AuthToken
