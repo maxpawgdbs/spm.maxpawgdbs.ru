@@ -88,7 +88,7 @@ def get():
         return flask.abort(403)
     con = sqlite3.connect("payments.db")
     cur = con.cursor()
-    query = cur.execute("SELECT nickname, date FROM PAYMENTS ORDER BY date DESC").fetchall()
+    query = cur.execute("SELECT nickname, date FROM PAYMENTS ORDER BY date ASC").fetchall()
     cur.close()
     con.close()
     return flask.render_template("gois.html", pays=query)
