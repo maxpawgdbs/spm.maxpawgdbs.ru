@@ -67,10 +67,12 @@ def stats():
     # calculated_hash = base64.b64encode(mac.digest()).decode()
     # if calculated_hash != auth:
     #     return flask.abort(403)
-
+    payer = flask.request.json().get("payer", None)
+    if payer is None:
+        return "error", 400
     con = sqlite3.connect("payments.db")
     cur = con.cursor()
-    cur.execute("INSERT INTO payments(nickname, date) VALUES (?, ?)", (flask.request.json()["payer"],
+    cur.execute("INSERT INTO payments(nickname, date) VALUES (?, ?)", (payer,
                                                                        datetime.datetime.now().strftime(
                                                                            "%Y-%m-%d %H:%M:%S")))
     con.commit()
