@@ -24,6 +24,11 @@ if URL is None or PORT is None:
     print("нет адреса")
     exit(0)
 
+CERTS = os.getenv("CERTS", None)
+if CERTS is None:
+    print("нет сертов")
+    exit(0)
+
 AuthToken = base64.b64encode(f"{ID}:{TOKEN}".encode()).decode()
 AuthHeader = "Bearer " + AuthToken
 
@@ -42,7 +47,7 @@ con.close()
 
 req = requests.post("https://spworlds.ru/api/public/payments",
                     json={"items": [{"name": "skam", "count": 1, "price": 1}],
-                          "redirectUrl": f"{URL}/get",
+                          "redirectUrl": f"https://{URL}/get",
                           "webhookUrl": "https://webhook.site/3a57aba7-5087-4f0b-96b5-daaca1843476",
                           "data": "Artyom privet"},
                     headers={"Authorization": AuthHeader})
@@ -68,8 +73,8 @@ def stats():
     con = sqlite3.connect("payments.db")
     cur = con.cursor()
     cur.execute("INSERT INTO payments(nickname, date) VALUES (?, ?)", (flask.request.json()["payer"],
-                                                                     datetime.datetime.now().strftime(
-                                                                         "%Y-%m-%d %H:%M:%S")))
+                                                                       datetime.datetime.now().strftime(
+                                                                           "%Y-%m-%d %H:%M:%S")))
     con.commit()
     cur.close()
     con.close()
@@ -90,4 +95,4 @@ def get():
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 8001)
+    app.run("0.0.0.0", 8001)#, ssl_context=(CERTS + "cert.pem", CERTS + "key.pem"))
