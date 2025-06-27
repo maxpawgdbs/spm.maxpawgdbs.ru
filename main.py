@@ -16,13 +16,18 @@ TOKEN = os.getenv("TOKEN", None)
 ID = os.getenv("ID", None)
 if TOKEN is None or ID is None:
     print("нет данных получателя")
-    exit(0)
+    exit(1)
 
 URL = os.getenv("URL", None)
 PORT = os.getenv("PORT", None)
 if URL is None or PORT is None:
     print("нет адреса")
-    exit(0)
+    exit(1)
+try:
+    PORT = int(PORT)
+except Exception:
+    print("бро а где интовый порт")
+    exit(1)
 
 # CERTS = os.getenv("CERTS", None)
 # if CERTS is None:
@@ -53,7 +58,12 @@ def main_page():
                               "webhookUrl": f"https://{URL}/stats",
                               "data": "kto zaplatil do tebya?))"},
                         headers={"Authorization": AuthHeader})
-    PAY_URL = req.json()["url"]
+    if req.status_code != 200:
+        return "Временные ошибки со стороны API SPM", 500
+    try:
+        PAY_URL = req.json()["url"]
+    except Exception:
+        return "Ошибка в ответе от API", 500
     return flask.render_template("main.html", pay_url=PAY_URL)
 
 
@@ -67,18 +77,21 @@ def stats():
     calculated_hash = base64.b64encode(mac.digest()).decode()
     if calculated_hash != auth:
         return flask.abort(403)
-    payer = flask.request.json.get("payer", None)
-    if payer is None:
+    if flask.request.is_json:
+        payer = flask.request.json.get("payer", None)
+        if payer is None:
+            return "error", 400
+        con = sqlite3.connect("payments.db")
+        cur = con.cursor()
+        cur.execute("INSERT INTO payments(nickname, date) VALUES (?, ?)", (payer,
+                                                                           datetime.datetime.now().strftime(
+                                                                               "%Y-%m-%d %H:%M:%S")))
+        con.commit()
+        cur.close()
+        con.close()
+        return "OK", 200
+    else:
         return "error", 400
-    con = sqlite3.connect("payments.db")
-    cur = con.cursor()
-    cur.execute("INSERT INTO payments(nickname, date) VALUES (?, ?)", (payer,
-                                                                       datetime.datetime.now().strftime(
-                                                                           "%Y-%m-%d %H:%M:%S")))
-    con.commit()
-    cur.close()
-    con.close()
-    return "OK", 200
 
 
 @app.get("/get")
