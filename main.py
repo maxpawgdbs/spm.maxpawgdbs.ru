@@ -58,8 +58,7 @@ def main_page():
                               "webhookUrl": f"https://{URL}/stats",
                               "data": "kto zaplatil do tebya?))"},
                         headers={"Authorization": AuthHeader})
-    if req.status_code != 200:
-        return "Временные ошибки со стороны API SPM", 500
+
     try:
         PAY_URL = req.json()["url"]
     except Exception:
