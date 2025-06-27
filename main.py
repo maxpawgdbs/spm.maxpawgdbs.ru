@@ -81,9 +81,9 @@ def stats():
 
 @app.get("/get")
 def get():
-    ref = flask.request.headers.get('Referer')
-    if not ref.startswith("https://spworlds.ru/spm/pay"):
-        return flask.abort(403)
+    # ref = flask.request.headers.get('Referer', None)
+    # if ref is None or not ref.startswith("https://spworlds.ru/spm/pay"):
+    #     return flask.abort(403)
     con = sqlite3.connect("payments.db")
     cur = con.cursor()
     query = cur.execute("SELECT nickname, date FROM PAYMENTS ORDER BY date DESC").fetchall()
