@@ -48,10 +48,10 @@ con.close()
 @app.get("/")
 def main_page():
     req = requests.post("https://spworlds.ru/api/public/payments",
-                        json={"items": [{"name": "skam", "count": 1, "price": 1}],
+                        json={"items": [{"name": "donut", "count": 1, "price": 10}],
                               "redirectUrl": f"https://{URL}/get",
                               "webhookUrl": f"https://{URL}/stats",
-                              "data": "Artyom privet"},
+                              "data": "kto zaplatil do tebya?))"},
                         headers={"Authorization": AuthHeader})
     PAY_URL = req.json()["url"]
     return flask.render_template("main.html", pay_url=PAY_URL)
