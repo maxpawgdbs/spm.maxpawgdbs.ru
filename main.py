@@ -83,11 +83,9 @@ def stats():
 
 @app.get("/get")
 def get():
-    with open("mylogs.ref", "a") as file:
-        file.write(str(flask.request.headers))
-    # ref = flask.request.headers.get('Referer', None)
-    # if ref is None or not ref.startswith("https://spworlds.ru/spm/pay"):
-    #     return flask.abort(403)
+    ref = flask.request.headers.get('Referer', None)
+    if ref is None or not ref == "https://spworlds.ru/":
+        return flask.abort(403)
     con = sqlite3.connect("payments.db")
     cur = con.cursor()
     query = cur.execute("SELECT nickname, date FROM PAYMENTS ORDER BY date DESC").fetchall()
@@ -97,4 +95,4 @@ def get():
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 8001)#, ssl_context=(CERTS + "cert.pem", CERTS + "key.pem"))
+    app.run("0.0.0.0", 8001)
