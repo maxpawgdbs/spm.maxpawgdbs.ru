@@ -73,6 +73,7 @@ ENV/
 
 # SQLite DB (если используется)
 *.sqlite3
+*.db
 
 # Others
 *.DS_Store
