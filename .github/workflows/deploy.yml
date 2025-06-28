@@ -22,8 +22,7 @@ jobs:
         port: 22
         script: |
           cd ..
-          cd /var/www/maxpawgdbs.ru/
-          source venv/bin/activate
+          cd /var/www/maxpawgdbs.ru/spm.maxpawgdbs.ru
           git pull
-          sudo systemctl restart maxpawgdbs.ru
+          sudo systemctl restart spm.maxpawgdbs.ru
           
